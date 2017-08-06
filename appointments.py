@@ -54,13 +54,18 @@ def log_appointment_dates(dates):
     }))
 
 
-def observe(limit, delay):
+def observe(limit, polling_delay):
+    """
+    :param limit: A timedelta. The observer will stop after this amount of time is elapsed.
+    :param polling_delay: The polling delay, in seconds.
+    """
     start = datetime.now()
     duration = timedelta()
     while duration < limit:
         duration = datetime.now() - start
         log_appointment_dates(get_appointment_dates())
-        time.sleep(delay)
+        time.sleep(polling_delay)
 
 
-observe(timedelta(hours=1), delay=60)
+if __name__ == "__main__":
+    observe(timedelta(days=30), polling_delay=60)
