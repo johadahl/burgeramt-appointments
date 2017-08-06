@@ -21,6 +21,12 @@ headers = {
 }
 
 def get_appointment_dates(buergeramt_ids=ALL_BUERGERAMTS, service_id=ANMELDUNG_SERVICE_ID):
+    """
+    Retrieves a list of appointment dates from the Berlin.de website.
+    :param buergeramt_ids: A list of IDs of burgeramts to check
+    :service_id: The service ID of the desired service. This is a URL parameter - the service ID has no meaning.
+    :returns: A list of date objects
+    """
     buergeramt_ids = [str(bid) for bid in buergeramt_ids]
     params = {
         'termin': 1,  # Not sure if necessary
@@ -46,6 +52,9 @@ def get_appointment_dates(buergeramt_ids=ALL_BUERGERAMTS, service_id=ANMELDUNG_S
 
 
 def log_appointment_dates(dates):
+    """
+    Writes the appointment dates in a file. Each line is written as a JSON object.
+    """
     logging.basicConfig(filename='dates.log', format='%(message)s', level=logging.INFO)
     date_strings = [d.strftime('%Y-%m-%dT%H:%M:%S') for d in dates]
     logging.info(json.dumps({
@@ -56,7 +65,8 @@ def log_appointment_dates(dates):
 
 def observe(limit, polling_delay):
     """
-    :param limit: A timedelta. The observer will stop after this amount of time is elapsed.
+    Polls for available appointments every [polling_delay] seconds for [limit] minutes/hours/days.
+    :param limit: A timedelta. The observer will stop after this amount of time is elapsed
     :param polling_delay: The polling delay, in seconds.
     """
     start = datetime.now()
