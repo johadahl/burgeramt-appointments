@@ -7,13 +7,14 @@ import time
 
 
 ALL_BUERGERAMTS = (
-    122210, 122217, 122219, 122227, 122231, 122238, 122243, 122252, 122260, 122262, 122254, 122271, 122273, 122277,
-    122280, 122282, 122284, 122291, 122285, 122286, 122296, 150230, 122301, 122297, 122294, 122312, 122314, 122304,
-    122311, 122309, 317869, 324433, 325341, 324434, 122281, 122283, 122279, 122276, 122274, 122267, 122246, 122251,
-    122257, 122208, 122226
+    122210, 122217, 122219, 122227, 122231, 122243, 122252, 122260, 122262,
+    122254, 122273, 122277, 122280, 122282, 122284, 122291, 122285, 122286,
+    122296, 327262, 325657, 150230, 122301, 122297, 122294, 122312, 122314,
+    122304, 122311, 122309, 317869, 324434, 122281, 324414, 122283, 122279,
+    122276, 122274, 122267, 122246, 122251, 122257, 122208, 122226
 )
 
-ANMELDUNG_SERVICE_ID = 120335
+ANMELDUNG_SERVICE_ID = 120686
 
 # Without a user agent, you will get a 403
 headers = {
@@ -31,7 +32,7 @@ def get_appointment_dates(buergeramt_ids=ALL_BUERGERAMTS, service_id=ANMELDUNG_S
     params = {
         'termin': 1,  # Not sure if necessary
         'dienstleisterlist': ','.join(buergeramt_ids),
-        'anliegen': (service_id, ),
+        'anliegen[]': service_id,
     }
     response = requests.get('https://service.berlin.de/terminvereinbarung/termin/tag.php', params=params, headers=headers)
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -44,8 +45,8 @@ def get_appointment_dates(buergeramt_ids=ALL_BUERGERAMTS, service_id=ANMELDUNG_S
     for index, month_widget in enumerate(month_widgets):
         # Get a list of available dates for each calendar widget. The first widget shows the current month.
         displayed_month = (today.month + index) % 12
-        available_day_links = month_widget.find_all('a', class_='tagesauswahl')
-        available_days = [int(link.find('span').text) for link in available_day_links]
+        available_day_links = month_widget.find_all('td', class_='buchbar')
+        available_days = [int(link.find('a').text) for link in available_day_links]
         available_dates += [today.replace(month=displayed_month, day=available_day) for available_day in available_days]
 
     return available_dates
